@@ -1,0 +1,86 @@
+﻿@model eBook.Models.BookSearchArg
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@using (Html.BeginForm()) 
+{
+    <table>
+        <tr>
+            <td>書名</td>
+            <td>@Html.TextBoxFor(m => m.bookName)</td>
+        </tr>
+        <tr>
+            <td>圖書類別</td>
+            <td>
+                @*@Html.TextBoxFor(m=>m.bookClassName)*@
+                @Html.DropDownListFor(m => m.bookClassId, (List<SelectListItem>)ViewBag.BookClassItem1)
+            </td>
+        </tr>
+        <tr>
+            <td>借閱人</td>
+            <td>
+                @Html.DropDownListFor(m => m.userId, (List<SelectListItem>)ViewBag.BookClassItem2)
+            </td>
+     @* 記得要再此檔設一個"請選擇"的選項 *@
+        </tr>
+        <tr>
+            <td>借書狀態</td>
+            <td> 
+                @Html.DropDownListFor(m => m.bookStatusId, (List<SelectListItem>)ViewBag.BookClassItem3)
+            </td>
+        </tr>
+    </table>
+
+    <input type="submit" id="btnSearch" value="查詢" />
+    <br />
+    if (ViewBag.BookSearchResult != null)
+    {
+        foreach (var item in (List<eBook.Models.BookSearchResult>)ViewBag.BookSearchResult)
+        {
+            @item.bookName
+            <br />
+        }
+    }
+
+    <div>
+        @if (ViewBag.SearchResult != null)
+        {
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr id="eTable">
+                        <th>圖書類別</th>
+                        <th>書名</th>
+                        <th>購書日期</th>
+                        <th>借閱狀態</th>
+                        <th>借閱人</th>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in (List<eBook.Models.BookSearchResult>)ViewBag.SearchResult)
+                    {
+                        <tr id='@item.bookName'>
+                            <td>@item.bookClassName</td>
+                            <td>@item.bookName</td>
+                            <td>@item.bookBoughtDate </td>
+                            <td>@item.codeName</td>
+                            <td>@item.userEName</td>
+                            <td>@Html.ActionLink("編輯", "EditBook", new { id = item.bookName, @value = @item.bookName })</td>
+                            <td>
+                                <a class="btnDelete" href="#" onclick="test(this,'@item.bookName');">刪除</a>
+                                <input class="hidEmployeeId" type="hidden" value='@item.bookName' />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+
+}
