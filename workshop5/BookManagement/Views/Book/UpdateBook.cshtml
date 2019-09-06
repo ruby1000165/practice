@@ -1,0 +1,172 @@
+﻿
+<div class="navbar navbar-inverse navbar-fixed-top" style="background-color: #99b2db ; border-color: #99b2db">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse" style="color:lightseagreen">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/Book">圖書維護系統</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav"></ul>
+        </div>
+    </div>
+</div>
+
+<div class="container body-content"></div>
+
+<h2 style="font-family:Microsoft JhengHei;">修改圖書</h2>
+<form action="/Book/UpdateBook" id="UpdateBookForm" method="post">
+    <input name="__RequestVerificationToken" type="hidden" value="9SXF0MaszxDdpR2wFJnsBct46y-TN3sHjfvciy_IJxIWWoLPKTHSyd-K-yR6IyFT3j7AP50TXIM4LNmndSOJU73p9YL9KhXCrwYHcVPBbek1" />
+    <div class="form-horizontal">
+        <hr />
+
+        <div class="form-group">
+            <label class="control-label col-md-2 required" for="BookName">書名</label>
+            <div class="col-md-10">
+                <input class="form-control" data-val="true" data-val-required="此欄位必填" id="BookName" name="BookName" type="text" value="@Model.BookName" />
+                <span class="field-validation-valid text-danger" data-valmsg-for="BookName" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2 required" for="BookAuthor">作者</label>
+            <div class="col-md-10">
+                <input class="form-control" data-val="true" data-val-required="此欄位必填" id="BookAuthor" name="BookAuthor" type="text" value="@Model.BookAuthor" />
+                <span class="field-validation-valid text-danger" data-valmsg-for="BookAuthor" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2 required" for="BookPublisher">出版社</label>
+            <div class="col-md-10">
+                <input class="form-control" data-val="true" data-val-required="此欄位必填" id="BookPublisher" name="BookPublisher" type="text" value="@Model.BookPublisher" />
+                <span class="field-validation-valid text-danger" data-valmsg-for="BookPublisher" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2 required" for="BookNote">內容簡介</label>
+            <div class="col-md-10">
+                <textarea class="form-control" cols="10" data-val="true" data-val-required="此欄位必填" id="TextArea" name="BookNote" onkeyup="WordsDeal();" rows="10">@Model.BookNote</textarea>
+                <span class="field-validation-valid text-danger" data-valmsg-for="BookNote" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2 required" for="BookBoughtDate">購買日期</label>
+            <div class="col-md-10">
+                <input class="form-control" data-val="true" data-val-required="此欄位必填" id="DatePicker" name="BookBoughtDate" type="Date" value="@Model.BookBoughtDate" />
+                <span class="field-validation-valid text-danger" data-valmsg-for="BookBoughtDate" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2 required" for="BookClassName">圖書類別</label>
+            <div class="col-md-10">
+                <select class="form-control" id="BookClassName" name="BookClassName">
+                    <option value="BK">Banking</option>
+                </select>
+                <span class="field-validation-valid text-danger" data-valmsg-for="BookClassName" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2 required" for="CodeName">借閱狀態</label>
+            <div class="col-md-10">
+                <select class="form-control " id="CodeNameDropDown" name="CodeName"></select>
+                <span class="field-validation-valid text-danger" data-valmsg-for="CodeName" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="UserName">借閱人</label>
+            <div class="col-md-10">
+                <select class="form-control" id="UserNameDropDown" name="UserName">
+                    <option value="">請選擇</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" class="btn" value="存檔" style="background-color: #99b2db; color:#194284" />
+
+                <input type="button" class="btn" id="delete" value="刪除" href="#" style="background-color: #99b2db; color:#194284">
+
+                <input class="hidBookID" type="hidden" value='@Model.BookID' />
+
+            </div>
+        </div>
+
+        <input type="button" value="返回" onclick="location.href='/Book'" class="btn" style="background-color: #99b2db; color:#194284" />
+    </div>
+    <div id="book_grid"></div>
+</form>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#delete").click(function (e) {
+            var Check = confirm('確定是否刪除這筆紀錄?');
+            if (Check == true) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "/Book/DeleteBook",
+                    data: "BookID=" + @Model.BookID,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response == true) {
+                            alert("圖書已刪除");
+                            location.href = "/Book"
+                        }
+                        else {
+                            alert("圖書已借出");
+                        }
+                    },
+                    error: function (error) {
+                        alert("系統發生錯誤");
+                    }
+                });
+            }
+        });
+
+        $("#UpdateBookForm").on("submit", function () {
+            return confirm('確定是否修改這筆紀錄?');
+        });
+
+        //下拉式選單控制(可借閱時不可填借閱人)
+        var Check = $("#CodeNameDropDown").val();
+        if (Check == "A" || Check == "U") {
+            $("#UserNameDropDown").attr("disabled", true);
+        }
+        else if (Check == "B" || Check == "C") {
+            $("#UserNameDropDown").attr('disabled', false);
+        }
+
+        $("#CodeNameDropDown").change(function () {
+            var Check = $("#CodeNameDropDown").val();
+            if (Check == "A" || Check == "U") {
+                $("#UserNameDropDown").val("");
+                $("#UserNameDropDown").attr("disabled", true);
+            }
+            else if (Check == "B" || Check == "C") {
+                $("#UserNameDropDown").val("0001");//預設為第一人
+                $("#UserNameDropDown").attr("disabled", false);
+            }
+        });
+    });
+
+    //內容簡介字數控制
+    function WordsDeal() {
+        var curLength = $("#TextArea").val().length;
+        if (curLength > 1000) {
+            var num = $("#TextArea").val().substr(0, 1000);
+            console.log(num);
+            $("#TextArea").val(num);
+            alert("超過字數限制(1000字)，多出的字將被移除！");
+        }
+    }
+</script>

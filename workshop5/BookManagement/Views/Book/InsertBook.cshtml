@@ -1,0 +1,114 @@
+﻿<form asp-controller="BookController" asp-action="InsertBook" method="post">
+    <div class="navbar navbar-inverse navbar-fixed-top" style="background-color: #99b2db ; border-color: #99b2db">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse" style="color:lightseagreen">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/Book">圖書維護系統</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container body-content">
+        <h2 style="font-family:Microsoft JhengHei;">新增圖書</h2>
+
+        <div class="form-horizontal">
+            <hr />
+
+            <div class="form-group">
+                <label class="control-label col-md-2 required" for="BookName">書名</label>
+                <div class="col-md-10">
+                    <input class="form-control" data-val="true" data-val-required="此欄位必填" id="BookName" name="BookName" type="text" value="" />
+                    <span class="field-validation-valid text-danger" data-valmsg-for="BookName" data-valmsg-replace="true"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-2 required" for="BookAuthor">作者</label>
+                <div class="col-md-10">
+                    <input class="form-control" data-val="true" data-val-required="此欄位必填" id="BookAuthor" name="BookAuthor" type="text" value="" />
+                    <span class="field-validation-valid text-danger" data-valmsg-for="BookAuthor" data-valmsg-replace="true"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-2 required" for="BookPublisher">出版社</label>
+                <div class="col-md-10">
+                    <input class="form-control" data-val="true" data-val-required="此欄位必填" id="BookPublisher" name="BookPublisher" type="text" value="" />
+                    <span class="field-validation-valid text-danger" data-valmsg-for="BookPublisher" data-valmsg-replace="true"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-2 required" for="BookNote">內容簡介</label>
+                <div class="col-md-10">
+                    <textarea class="form-control" cols="10" data-val="true" data-val-required="此欄位必填" id="TextArea" name="BookNote" onkeyup="WordsDeal();" rows="10"></textarea>
+                    <span class="field-validation-valid text-danger" data-valmsg-for="BookNote" data-valmsg-replace="true"></span>
+                </div>
+            </div>
+
+            @* 若有購買日期是否要有限制的問題，可以詢問SA *@
+            <div class="form-group">
+                <label class="control-label col-md-2 required" for="BookBoughtDate">購買日期</label>
+                <div class="col-md-10">
+                    <input Value="2019-09-06" class="form-control" data-val="true" data-val-required="此欄位必填" id="BookBoughtDate" name="BookBoughtDate" type="Date" value="" />
+                    <span class="field-validation-valid text-danger" data-valmsg-for="BookBoughtDate" data-valmsg-replace="true"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-2 required" for="BookClassName">圖書類別</label>
+                <div class="col-md-10">
+                    <select class="form-control" data-val="true" data-val-required="此欄位必填" id="BookClassID" name="BookClassID"></select>
+                    <span class="field-validation-valid text-danger" data-valmsg-for="BookClassID" data-valmsg-replace="true"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="存檔" id="save" class="btn" style="background-color: #99b2db; color:#194284" />
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <input type="button" value="返回" onclick="location.href='/Book'" class="btn" style="background-color: #99b2db; color:#194284" />
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //圖書類別的kendoDropDownList，可以連結到controller去取資料
+        $("#BookClassID").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "/Book/GetDropDownListDataBookClass",
+                        type: "post",
+                        dataType: "json"
+                    }
+                }
+            },
+        });
+    });
+
+    //內容簡介字數控制
+    function WordsDeal() {
+        var curLength = $("#TextArea").val().length;
+        if (curLength > 1000) {
+            var num = $("#TextArea").val().substr(0, 1000);
+            $("#TextArea").val(num);
+            alert("超過字數限制(1000字)，多出的字將被移除！");
+        }
+    }
+</script>
+
+

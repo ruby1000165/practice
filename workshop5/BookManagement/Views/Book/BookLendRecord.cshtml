@@ -1,0 +1,36 @@
+﻿@{
+    ViewBag.Title = "BookLendRecord";
+}
+
+<h2 style="font-family:Microsoft JhengHei;">借閱紀錄</h2>
+<br />
+<div>
+    @if (ViewBag.LendRecord != null)
+    {
+        <table class="table table-striped table-bordered table-sm" cellspacing="0" id="table">
+            <thead>
+                <tr>
+                    <th>書名</th>
+                    <th>借閱人員編號</th>
+                    <th>借閱人</th>
+                    <th>借閱日期</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in (List<BookManagement.Models.Books>)ViewBag.LendRecord)
+                {
+                    <tr id='@item.BookID'>
+                        <td>@item.BookName</td>
+                        <td>@item.UserID</td>
+                        <td>@item.UserName </td>
+                        <td>@item.LendDate </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+        <div>
+            @*返回上一頁*@
+            <input type="button" value="返回" class="btn" style="background-color: #99b2db; color:#194284" onclick="history.back()" />
+        </div>
+</div>

@@ -1,0 +1,194 @@
+﻿<h2 style="font-family:Microsoft JhengHei;">圖書維護</h2>
+
+<form action="/Book" id="Form1" method="post">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-md-2" for="BookName">書名</label>
+            <div class="col-md-10">
+                <input class="form-control" id="BookName" name="BookName" type="text" value="" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="BookClassName">圖書類別</label>
+            <div class="col-md-10">
+                <select class="form-control" id="bookclassname" name="BookClassName"></select>
+                <span class="field-validation-valid text-danger" data-valmsg-for="BookClassName" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="UserName">借閱人</label>
+            <div class="col-md-10">
+                <select class="form-control" id="username" name="UserName"></select>
+                <span class="field-validation-valid text-danger" data-valmsg-for="UserName" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="CodeName">借閱狀態</label>
+            <div class="col-md-10">
+                <select class="form-control" id="codename" name="CodeName"></select>
+                <span class="field-validation-valid text-danger" data-valmsg-for="CodeName" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                @* type = "submit" 是指要提交表單，因此要換成type = "button" *@
+                <input type="button" value="查詢" id="searchbtn" class="btn" style="background-color: #99b2db; color:#194284" />
+                <input type="button" value="新增" id="insertbtn" onclick="location.href='/Book/InsertBook'" class="btn" style="background-color: #99b2db; color:#194284" />
+                <input type="button" value="清除" id="deletebtn" onclick="location.href='/Book'" class="btn" style="background-color: #99b2db; color:#194284" />
+            </div>
+        </div>
+        <div id="book_grid"></div>
+    </div>
+</form>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //圖書類別的kendoDropDownList，可以連結到controller去取資料
+        $("#bookclassname").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "/Book/GetDropDownListDataBookClass",
+                        type: "post",
+                        dataType: "json"
+                    }
+                }
+            },
+            //先設一個初始值
+            optionLabel: "請選擇"  
+        });
+
+        //使用者的kendoDropDownList，可以連結到controller去取資料
+        $("#username").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "/Book/GetDropDownListDataUserId",
+                        type: "post",
+                        dataType: "json"
+                    }
+                }
+            },
+            //先設一個初始值
+            optionLabel: "請選擇"
+        });
+
+        //使用狀態的kendoDropDownList，可以連結到controller去取資料
+        $("#codename").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "/Book/GetDropDownListDataCodeName",
+                        type: "post",
+                        dataType: "json"
+                    }
+                }
+            },
+            //先設一個初始值
+            optionLabel: "請選擇"
+        });
+
+        //查詢書籍
+        $("#searchbtn").click(function () {   
+            $("#book_grid").kendoGrid({
+                //問題:按幾次查詢，就要按幾次刪除，因為每click一次，就會出現一個新的表格覆蓋在舊的表格上
+                //解決:可以在html裡先生一個book_grid，之後每次click只要寫入dataSource就可以了
+                dataSource: {   
+                    transport: {
+                        read:    //會把資料回傳給controller
+                        {
+                            url: "/Book/GetBookCondtioin",
+                            type: "post",
+                            dataType: "json",
+                            data: {
+                                BookName: $("#BookName").val(),                                        //jquery的取值方式
+                                BookClassName: $("#bookclassname").data("kendoDropDownList").value(),  //kendo的取值方式
+                                UserName: $("#username").data("kendoDropDownList").value(),
+                                CodeName: $("#codename").data("kendoDropDownList").value()
+                            }
+                        }
+                    },
+                    pageSize: 20  //保持頁面一直有20項資料
+                },
+                height: 550,
+                groupable: true,
+                sortable: true,
+                pageable: {
+                    refresh: true,
+                    pageSizes: true,
+                    buttonCount: 5 
+                },
+                columns: [
+                    {
+                        hidden: true, field: "BookID",
+                    }, {
+                        field: "BookClassName", title: "圖書類別"
+                    }, {
+                        field: "BookName", title: "書名"
+                    }, {
+                        field: "BookBoughtDate", title: "購書日期"
+                    }, {
+                        field: "CodeName", title: "借閱狀態"
+                    }, {
+                        field: "UserName", title: "借閱人"
+                    }, {
+                        command: { text: "借閱紀錄" }, title: " ", width: "135px", 
+                    }, {
+                        command: { text: "編輯", click: updateBook }, title: " ", width: "110px",
+                    }, {
+                        command: { text: "刪除", click: deleteBook }, title: " ", width: "110px",
+                    }]
+            });
+        });
+    });
+
+    //刪除資料
+    function deleteBook(e) {
+        e.preventDefault();
+        var Check = confirm('確定是否刪除這筆紀錄?');
+        if (Check == true) {
+            var tr = $(e.target).closest("tr");
+            var row = this.dataItem(tr).BookID;   
+            $.ajax({                             //在這裡的時候就已經把資料庫的資料刪掉了
+                type: "POST",
+                url: "/Book/DeleteBook",
+                data: "BookID=" + row,
+                dataType: "json",
+                success: function (response) {
+                    if (response == true) {
+                        $(tr).remove();          //只有刪到tr
+
+                        alert("圖書已刪除");
+                    }
+                },
+                error: function (error) {
+                    alert("系統發生錯誤");
+                }
+            });
+        }
+    };
+
+    //更新資料的跳轉頁面，還未做完
+    function updateBook(e) {
+        var tr = $(e.target).closest("tr");
+        var row = this.dataItem(tr).BookID;
+
+        location.href = "/Book/UpdateBook?BookID=" + row;
+    }
+</script>
+
+
+
